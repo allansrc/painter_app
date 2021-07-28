@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
 
 class OurPainter extends CustomPainter {
+  final List<Offset?> points;
+
+  OurPainter(this.points);
   @override
   void paint(Canvas canvas, Size size) {
     /// [ Demo Line render ]
@@ -84,18 +88,45 @@ class OurPainter extends CustomPainter {
     // );
 
     canvas.drawPath(arch, line);
+
+    /// `Draw User Name`
+    final userNameStyle = ui.ParagraphStyle(
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
+    );
+    final textStyle = ui.TextStyle(color: Colors.black, fontSize: 16);
+
+    final userNameBuilder = ui.ParagraphBuilder(userNameStyle)
+      ..pushStyle(textStyle)
+      ..addText("CustomPainter == Awesome");
+
+    final userNameCanvas = userNameBuilder.build();
+    userNameCanvas.layout(ui.ParagraphConstraints(width: 300));
+
+    final offset = Offset(.5 * size.width - (300 / 2), (.92 * size.height));
+    canvas.drawParagraph(userNameCanvas, offset);
+
+    /// `Draw line under signature`
+    final paintLine = Paint()
+      ..strokeWidth = 2
+      ..color = Colors.black
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(
+      Offset((.3 * size.width), (.9 * size.height)), // ponto inicial
+      Offset((.7 * size.width), (.9 * size.height)), // ponto final
+      paintLine,
+    );
+
+    /// `Draw lines signature`
+    for (int i = 0; i < points.length - 1; i++) {
+      if (points[i] != null && points[i + 1] != null) {
+        canvas.drawLine(points[i]!, points[i + 1]!, line);
+      }
+    }
   }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
     return false;
   }
-}
-
-class GeometricsPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {}
-
-  @override
-  bool shouldRepaint(GeometricsPainter oldDelegate) => false;
 }
